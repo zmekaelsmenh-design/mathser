@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mathser — Math & Programming</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&family=Noto+Sans+Ethiopic:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07080f;
+    --surface: #0e0f1a;
+    --surface2: #13152a;
+    --border: #1c1e35;
+    --accent: #5b8dee;
+    --accent2: #00f5c4;
+    --accent3: #ff6b6b;
+    --prog: #f7b731;
+    --text: #e4e6f0;
+    --muted: #4a4d6e;
+    --glow: rgba(91,141,238,0.12);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', 'Noto Sans Ethiopic', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(91,141,238,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91,141,238,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events:none; z-index:0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:200;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 40px;
+    background:rgba(7,8,15,0.9);
+    backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+  }
+
+  .logo {
+    font-size:1.5rem; font-weight:800; letter-spacing:-1px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .logo-m { color:var(--accent); }
+  .logo-rest { color:var(--text); }
+  .logo-pulse {
+    width:8px; height:8px; background:var(--accent2);
+    border-radius:50%; animation:pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ box-shadow:0 0 0 0 rgba(0,245,196,0.4); }
+    50%{ box-shadow:0 0 0 6px rgba(0,245,196,0); }
+  }
+
+  .nav-right { display:flex; align-items:center; gap:24px; }
+
+  /* Language switcher */
+  .lang-switch {
+    display:flex; gap:4px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:8px; padding:4px;
+  }
+  .lang-btn {
+    background:none; border:none; color:var(--muted);
+    font-family:'Space Mono',monospace; font-size:0.7rem;
+    padding:5px 10px; border-radius:5px; cursor:pointer;
+    transition:all 0.2s; letter-spacing:1px;
+  }
+  .lang-btn.active {
+    background:var(--accent); color:#fff;
+  }
+
+  .nav-links { display:flex; gap:24px; list-style:none; }
+  .nav-links a {
+    color:var(--muted); text-decoration:none;
+    font-size:0.82rem; font-weight:600;
+    letter-spacing:0.5px; transition:color 0.2s;
+  }
+  .nav-links a:hover { color:var(--text); }
+
+  /* Tab nav */
+  .main-tabs {
+    display:flex; gap:0;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden;
+  }
+  .main-tab {
+    background:none; border:none; color:var(--muted);
+    font-family:'Syne',sans-serif; font-size:0.82rem; font-weight:600;
+    padding:9px 20px; cursor:pointer; transition:all 0.2s;
+    border-right:1px solid var(--border);
+  }
+  .main-tab:last-child { border-right:none; }
+  .main-tab.active { background:var(--accent); color:#fff; }
+
+  /* ── HERO ── */
+  .hero {
+    position:relative; z-index:1;
+    min-height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center; padding:120px 24px 80px;
+  }
+
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:100px; padding:7px 18px;
+    font-size:0.72rem; font-family:'Space Mono',monospace;
+    color:var(--accent2); margin-bottom:36px;
+    animation:fadeUp 0.5s ease both;
+  }
+  .badge-dot { width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 1.5s infinite; }
+
+  .hero-title {
+    font-size:clamp(2.8rem,8vw,6rem);
+    font-weight:800; line-height:1.05;
+    letter-spacing:-3px;
+    animation:fadeUp 0.5s 0.1s ease both;
+  }
+  .hero-title .hi { color:var(--accent); }
+  .hero-title .hp { color:var(--prog); }
+
+  .hero-sub {
+    margin-top:20px; font-size:1.05rem;
+    color:var(--muted); max-width:520px; line-height:1.75;
+    animation:fadeUp 0.5s 0.2s ease both;
+    font-family:'Noto Sans Ethiopic','Syne',sans-serif;
+  }
+
+  .hero-actions {
+    margin-top:40px; display:flex; gap:14px;
+    flex-wrap:wrap; justify-content:center;
+    animation:fadeUp 0.5s 0.3s ease both;
+  }
+
+  .btn-primary {
+    background:var(--accent); color:#fff; border:none;
+    padding:14px 32px; border-radius:8px;
+    font-family:'Syne',sans-serif; font-size:0.92rem; font-weight:700;
+    cursor:pointer; transition:all 0.2s;
+    box-shadow:0 0 30px rgba(91,141,238,0.35);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 0 50px rgba(91,141,238,0.5); }
+
+  .btn-ghost {
+    background:transparent; color:var(--text);
+    border:1px solid var(--border); padding:14px 32px;
+    border-radius:8px; font-family:'Syne',sans-serif;
+    font-size:0.92rem; font-weight:700; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .btn-ghost:hover { border-color:var(--accent); background:var(--glow); }
+
+  /* floating symbols */
+  .floaters { position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+  .floater {
+    position:absolute; font-family:'Space Mono',monospace;
+    color:rgba(91,141,238,0.08); animation:floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0%{ transform:translateY(110vh) rotate(0deg); opacity:0; }
+    5%{ opacity:1; } 95%{ opacity:1; }
+    100%{ transform:translateY(-80px) rotate(360deg); opacity:0; }
+  }
+
+  @keyframes fadeUp {
+    from{ opacity:0; transform:translateY(22px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  /* ── SECTION ── */
+  .section {
+    position:relative; z-index:1;
+    max-width:1120px; margin:0 auto; padding:80px 24px;
+  }
+  .section-label {
+    font-family:'Space Mono',monospace; font-size:0.68rem;
+    color:var(--accent); letter-spacing:3px;
+    text-transform:uppercase; margin-bottom:12px;
+  }
+  .section-title {
+    font-size:clamp(1.8rem,4vw,2.6rem);
+    font-weight:800; letter-spacing:-1.5px; margin-bottom:44px;
+    line-height:1.15;
+  }
+
+  /* ── CONTENT PANEL (language aware) ── */
+  [data-lang] { display:none; }
+  [data-lang].active { display:block; }
+  [data-lang-inline] { display:none; }
+  [data-lang-inline].active { display:inline; }
+
+  /* ── TABS (Math / Programming) ── */
+  .subject-tabs {
+    display:flex; gap:0; margin-bottom:36px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:10px; overflow:hidden; width:fit-content;
+  }
+  .subject-tab {
+    background:none; border:none; color:var(--muted);
+    font-family:'Syne',sans-serif; font-size:0.88rem; font-weight:700;
+    padding:12px 28px; cursor:pointer; transition:all 0.2s;
+    border-right:1px solid var(--border);
+  }
+  .subject-tab:last-child{ border-right:none; }
+  .subject-tab.active.math { background:var(--accent); color:#fff; }
+  .subject-tab.active.prog { background:var(--prog); color:#000; }
+
+  .subject-panel { display:none; }
+  .subject-panel.active { display:block; }
+
+  /* ── CARDS GRID ── */
+  .cards-grid {
+    display:grid; grid-template-columns:repeat(auto-fill, minmax(270px,1fr));
+    gap:14px;
+  }
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:26px; cursor:pointer;
+    transition:all 0.22s; position:relative; overflow:hidden;
+  }
+  .card::after {
+    content:''; position:absolute; top:0; left:0; right:0;
+    height:2px; opacity:0; transition:opacity 0.2s;
+  }
+  .card.math-card::after { background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+  .card.prog-card::after { background:linear-gradient(90deg,var(--prog),var(--accent3)); }
+  .card:hover { transform:translateY(-4px); border-color:var(--accent); }
+  .card:hover::after { opacity:1; }
+  .card.prog-card:hover { border-color:var(--prog); }
+
+  .card-icon { font-size:1.7rem; margin-bottom:14px; }
+  .card h3 { font-size:1.05rem; font-weight:700; margin-bottom:7px; }
+  .card p { font-size:0.82rem; color:var(--muted); line-height:1.65; }
+  .card-tag {
+    display:inline-block; margin-top:14px;
+    font-family:'Space Mono',monospace; font-size:0.62rem;
+    border-radius:4px; padding:3px 8px;
+  }
+  .math-tag { color:var(--accent); border:1px solid rgba(91,141,238,0.3); }
+  .prog-tag { color:var(--prog); border:1px solid rgba(247,183,49,0.3); }
+
+  /* ── LESSON DEMO ── */
+  .lesson-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; overflow:hidden;
+  }
+  .lesson-topbar {
+    display:flex; align-items:center; gap:8px;
+    padding:14px 22px; border-bottom:1px solid var(--border);
+    background:var(--surface2);
+  }
+  .tb-dot { width:10px;height:10px;border-radius:50%; }
+  .tb-title {
+    margin-left:10px; font-family:'Space Mono',monospace;
+    font-size:0.72rem; color:var(--muted);
+  }
+  .lesson-content {
+    display:grid; grid-template-columns:1fr 1fr; gap:0;
+  }
+  @media(max-width:680px){ .lesson-content{grid-template-columns:1fr;} }
+
+  .lesson-left { padding:36px; border-right:1px solid var(--border); }
+  .lesson-left h3 { font-size:1.3rem; font-weight:800; margin-bottom:14px; }
+  .lesson-left p { color:var(--muted); line-height:1.8; font-size:0.87rem; margin-bottom:12px; }
+  .lesson-left .highlight { color:var(--accent2); font-weight:700; }
+
+  .lesson-right { padding:36px; display:flex; flex-direction:column; gap:14px; }
+
+  .code-block {
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:10px; padding:20px;
+    font-family:'Space Mono',monospace; font-size:0.8rem;
+    line-height:1.8; overflow-x:auto;
+  }
+  .kw { color:#c792ea; }
+  .fn { color:var(--accent2); }
+  .str { color:#f78c6c; }
+  .num { color:var(--prog); }
+  .cmt { color:var(--muted); }
+  .op { color:var(--accent3); }
+
+  .formula-display {
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:10px; padding:24px; text-align:center;
+  }
+  .formula-big { font-size:1.8rem; font-family:'Space Mono',monospace; color:var(--accent2); }
+  .formula-note { font-size:0.72rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:8px; }
+
+  /* ── STATS ── */
+  .stats-row {
+    display:grid; grid-template-columns:repeat(4,1fr); gap:14px;
+    margin-top:60px;
+  }
+  @media(max-width:640px){ .stats-row{grid-template-columns:repeat(2,1fr);} }
+  .stat {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:28px 20px; text-align:center;
+  }
+  .stat-n { font-size:2.4rem; font-weight:800; letter-spacing:-2px; }
+  .stat-l { color:var(--muted); font-size:0.78rem; margin-top:4px; }
+
+  /* ── QUIZ ── */
+  .quiz-wrap {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:40px; max-width:640px; margin:0 auto;
+  }
+  .quiz-category {
+    font-family:'Space Mono',monospace; font-size:0.68rem;
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:8px;
+  }
+  .quiz-q { font-size:1.1rem; font-weight:700; margin-bottom:6px; }
+  .quiz-eq {
+    font-family:'Space Mono',monospace; font-size:1.7rem;
+    text-align:center; margin:24px 0; line-height:1.5;
+  }
+  .quiz-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .qopt {
+    background:var(--bg); border:1px solid var(--border);
+    border-radius:8px; padding:14px; text-align:center;
+    font-family:'Space Mono',monospace; font-size:0.9rem;
+    cursor:pointer; transition:all 0.2s; color:var(--text);
+  }
+  .qopt:hover{ border-color:var(--accent); background:var(--glow); }
+  .qopt.correct{ border-color:var(--accent2); background:rgba(0,245,196,0.08); color:var(--accent2); }
+  .qopt.wrong{ border-color:var(--accent3); background:rgba(255,107,107,0.08); color:var(--accent3); }
+
+  .quiz-fb { text-align:center; font-size:0.87rem; min-height:22px; }
+  .quiz-tabs {
+    display:flex; gap:8px; margin-bottom:28px;
+  }
+  .qtab {
+    background:none; border:1px solid var(--border);
+    color:var(--muted); font-family:'Syne',sans-serif;
+    font-size:0.8rem; font-weight:700; padding:8px 18px;
+    border-radius:6px; cursor:pointer; transition:all 0.2s;
+  }
+  .qtab.active.math{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .qtab.active.prog{ background:var(--prog); border-color:var(--prog); color:#000; }
+
+  /* ── FOOTER ── */
+  footer {
+    position:relative; z-index:1;
+    border-top:1px solid var(--border); padding:40px;
+    text-align:center; font-family:'Space Mono',monospace;
+    font-size:0.75rem; color:var(--muted);
+  }
+  .footer-logo { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:800; margin-bottom:10px; }
+  .footer-logo span { color:var(--accent); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:768px){
+    nav{ padding:14px 20px; }
+    .nav-links{ display:none; }
+    .hero-title{ letter-spacing:-2px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters" id="floaters"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">
+    <span class="logo-m">M</span><span class="logo-rest">athser</span>
+    <div class="logo-pulse"></div>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch">
+      <button class="lang-btn active" onclick="setLang('am')">አማ</button>
+      <button class="lang-btn" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('it')">IT</button>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#topics">
+        <span data-lang="am" class="active">ርዕሰ ጉዳዮች</span>
+        <span data-lang="en">Topics</span>
+        <span data-lang="it">Argomenti</span>
+      </a></li>
+      <li><a href="#lesson">
+        <span data-lang="am" class="active">ትምህርት</span>
+        <span data-lang="en">Lessons</span>
+        <span data-lang="it">Lezioni</span>
+      </a></li>
+      <li><a href="#quiz">Quiz</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-dot"></span>
+    <span data-lang="am" class="active">AI ላይ የተመሰረተ መማሪያ</span>
+    <span data-lang="en">AI-Powered Learning Platform</span>
+    <span data-lang="it">Piattaforma di Apprendimento AI</span>
+  </div>
+
+  <h1 class="hero-title">
+    <span class="hi">
+      <span data-lang="am" class="active">ሂሳብ</span>
+      <span data-lang="en">Math</span>
+      <span data-lang="it">Matematica</span>
+    </span>
+    &amp;
+    <span class="hp">
+      <span data-lang="am" class="active">ፕሮግራሚንግ</span>
+      <span data-lang="en">Coding</span>
+      <span data-lang="it">Coding</span>
+    </span>
+    <br>
+    <span data-lang="am" class="active">በቀላሉ ይማሩ</span>
+    <span data-lang="en">Made Simple</span>
+    <span data-lang="it">Semplificati</span>
+  </h1>
+
+  <p class="hero-sub">
+    <span data-lang="am" class="active">Mathser — ሂሳብ እና ፕሮግራሚንግን ለሁሉም ሰው ቀላል ያደርጋል። አሁን ይጀምሩ!</span>
+    <span data-lang="en">Mathser makes math and programming accessible for everyone. Clear lessons, instant practice.</span>
+    <span data-lang="it">Mathser rende la matematica e la programmazione accessibili a tutti. Lezioni chiare, pratica immediata.</span>
+  </p>
+
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('topics').scrollIntoView({behavior:'smooth'})">
+      <span data-lang="am" class="active">አሁን ጀምር →</span>
+      <span data-lang="en">Start Learning →</span>
+      <span data-lang="it">Inizia Ora →</span>
+    </button>
+    <button class="btn-ghost" onclick="document.getElementById('quiz').scrollIntoView({behavior:'smooth'})">
+      <span data-lang="am" class="active">ፈተና ሞክር</span>
+      <span data-lang="en">Try a Quiz</span>
+      <span data-lang="it">Prova un Quiz</span>
+    </button>
+  </div>
+</section>
+
+<!-- TOPICS -->
+<section class="section" id="topics">
+  <p class="section-label">// curriculum</p>
+  <h2 class="section-title">
+    <span data-lang="am" class="active">ምን እንማራለን?</span>
+    <span data-lang="en">What will you learn?</span>
+    <span data-lang="it">Cosa imparerai?</span>
+  </h2>
+
+  <!-- Subject toggle -->
+  <div class="subject-tabs">
+    <button class="subject-tab math active" onclick="setSubject('math',this)">
+      ➕ <span data-lang="am" class="active">ሂሳብ</span><span data-lang="en">Math</span><span data-lang="it">Matematica</span>
+    </button>
+    <button class="subject-tab prog" onclick="setSubject('prog',this)">
+      💻 <span data-lang="am" class="active">ፕሮግራሚንግ</span><span data-lang="en">Programming</span><span data-lang="it">Programmazione</span>
+    </button>
+  </div>
+
+  <!-- MATH CARDS -->
+  <div class="subject-panel active" id="panel-math">
+    <div class="cards-grid">
+      <div class="card math-card">
+        <div class="card-icon">➕</div>
+        <h3><span data-lang="am" class="active">አርቲሜቲክ</span><span data-lang="en">Arithmetic</span><span data-lang="it">Aritmetica</span></h3>
+        <p><span data-lang="am" class="active">መደመር፣ መቀነስ፣ ማባዛት እና ማካፈል ይማሩ።</span><span data-lang="en">Master addition, subtraction, multiplication and division.</span><span data-lang="it">Impara le operazioni fondamentali di calcolo.</span></p>
+        <span class="card-tag math-tag">BEGINNER</span>
+      </div>
+      <div class="card math-card">
+        <div class="card-icon">📐</div>
+        <h3><span data-lang="am" class="active">ጂኦሜትሪ</span><span data-lang="en">Geometry</span><span data-lang="it">Geometria</span></h3>
+        <p><span data-lang="am" class="active">ቅርጾች፣ ማዕዘኖች፣ ስፋትና ዙሪያ ይማሩ።</span><span data-lang="en">Explore shapes, angles, area, perimeter and volume.</span><span data-lang="it">Esplora forme, angoli, area e perimetro.</span></p>
+        <span class="card-tag math-tag">BEGINNER</span>
+      </div>
+      <div class="card math-card">
+        <div class="card-icon">𝑥</div>
+        <h3><span data-lang="am" class="active">አልጀብራ</span><span data-lang="en">Algebra</span><span data-lang="it">Algebra</span></h3>
+        <p><span data-lang="am" class="active">እኩልታዎችን ፍቱ፣ ተለዋዋጮችን ተረዱ።</span><span data-lang="en">Solve equations, understand variables and functions.</span><span data-lang="it">Risolvi equazioni e studia le funzioni.</span></p>
+        <span class="card-tag math-tag">INTERMEDIATE</span>
+      </div>
+      <div class="card math-card">
+        <div class="card-icon">📊</div>
+        <h3><span data-lang="am" class="active">ስታቲስቲክስ</span><span data-lang="en">Statistics</span><span data-lang="it">Statistica</span></h3>
+        <p><span data-lang="am" class="active">ዳታ፣ ፕሮባቢሊቲ እና ግራፎች ይማሩ።</span><span data-lang="en">Understand data, probability, mean and graphs.</span><span data-lang="it">Comprendi dati, probabilità e grafici.</span></p>
+        <span class="card-tag math-tag">INTERMEDIATE</span>
+      </div>
+      <div class="card math-card">
+        <div class="card-icon">∫</div>
+        <h3><span data-lang="am" class="active">ካልኩለስ</span><span data-lang="en">Calculus</span><span data-lang="it">Calcolo</span></h3>
+        <p><span data-lang="am" class="active">ዴሪቫቲቭ፣ ኢንቴግራሎች እና ሊሚቶች ይማሩ።</span><span data-lang="en">Derivatives, integrals and limits — the math of change.</span><span data-lang="it">Derivate, integrali e limiti — la matematica del cambiamento.</span></p>
+        <span class="card-tag math-tag">ADVANCED</span>
+      </div>
+      <div class="card math-card">
+        <div class="card-icon">🔢</div>
+        <h3><span data-lang="am" class="active">የቁጥሮች ቲዎሪ</span><span data-lang="en">Number Theory</span><span data-lang="it">Teoria dei Numeri</span></h3>
+        <p><span data-lang="am" class="active">ፕራይም ቁጥሮች፣ ፋክተሮች እና ክፍልፋዮች ይማሩ።</span><span data-lang="en">Primes, factors, fractions and number patterns.</span><span data-lang="it">Numeri primi, fattori e frazioni.</span></p>
+        <span class="card-tag math-tag">ADVANCED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRAMMING CARDS -->
+  <div class="subject-panel" id="panel-prog">
+    <div class="cards-grid">
+      <div class="card prog-card">
+        <div class="card-icon">🐍</div>
+        <h3>Python</h3>
+        <p><span data-lang="am" class="active">ለጀማሪዎች ምርጥ ቋንቋ። ቀላልና ኃይለኛ።</span><span data-lang="en">The best beginner language. Simple, powerful and versatile.</span><span data-lang="it">Il miglior linguaggio per principianti. Semplice e potente.</span></p>
+        <span class="card-tag prog-tag">BEGINNER</span>
+      </div>
+      <div class="card prog-card">
+        <div class="card-icon">🌐</div>
+        <h3>HTML &amp; CSS</h3>
+        <p><span data-lang="am" class="active">ድረ-ገጽ ለመስራት መሰረቱ። ቅርጽ እና ዲዛይን ይማሩ።</span><span data-lang="en">Build websites from scratch. Structure and style the web.</span><span data-lang="it">Costruisci siti web da zero. Struttura e stile del web.</span></p>
+        <span class="card-tag prog-tag">BEGINNER</span>
+      </div>
+      <div class="card prog-card">
+        <div class="card-icon">⚡</div>
+        <h3>JavaScript</h3>
+        <p><span data-lang="am" class="active">ድረ-ገጾችን ኢንተራክቲቭ ያድርጉ። የድር ቋንቋ ቁጥር 1።</span><span data-lang="en">Make websites interactive. The #1 language of the web.</span><span data-lang="it">Rendi i siti interattivi. Il linguaggio #1 del web.</span></p>
+        <span class="card-tag prog-tag">INTERMEDIATE</span>
+      </div>
+      <div class="card prog-card">
+        <div class="card-icon">🔷</div>
+        <h3>C / C++</h3>
+        <p><span data-lang="am" class="active">ዝቅተኛ ደረጃ ፕሮግራሚንግ። ፍጥነትና አቅም።</span><span data-lang="en">Low-level power. Memory management and high performance.</span><span data-lang="it">Potenza di basso livello. Gestione memoria e alte prestazioni.</span></p>
+        <span class="card-tag prog-tag">INTERMEDIATE</span>
+      </div>
+      <div class="card prog-card">
+        <div class="card-icon">🤖</div>
+        <h3>
+          <span data-lang="am" class="active">አርቴፊሻል ኢንቴሊጀንስ</span>
+          <span data-lang="en">AI &amp; Machine Learning</span>
+          <span data-lang="it">IA e Machine Learning</span>
+        </h3>
+        <p><span data-lang="am" class="active">AI ሞዴሎችን ይገንቡ፣ ዳታ ያንዱ። የወደፊቱ ቴክኖሎጂ።</span><span data-lang="en">Build AI models, analyze data. The technology of the future.</span><span data-lang="it">Costruisci modelli AI e analizza dati.</span></p>
+        <span class="card-tag prog-tag">ADVANCED</span>
+      </div>
+      <div class="card prog-card">
+        <div class="card-icon">🗄️</div>
+        <h3>
+          <span data-lang="am" class="active">ዳታቤዝ</span>
+          <span data-lang="en">Databases / SQL</span>
+          <span data-lang="it">Database / SQL</span>
+        </h3>
+        <p><span data-lang="am" class="active">ዳታን ያከማቹ፣ ያግኙ እና ያስተዳድሩ።</span><span data-lang="en">Store, retrieve and manage data with SQL.</span><span data-lang="it">Archivia, recupera e gestisci dati con SQL.</span></p>
+        <span class="card-tag prog-tag">INTERMEDIATE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-n" style="color:var(--accent)">6+</div>
+      <div class="stat-l"><span data-lang="am" class="active">የሂሳብ ርዕሶች</span><span data-lang="en">Math Topics</span><span data-lang="it">Argomenti Math</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" style="color:var(--prog)">6+</div>
+      <div class="stat-l"><span data-lang="am" class="active">የፕሮግ ርዕሶች</span><span data-lang="en">Coding Topics</span><span data-lang="it">Argomenti Coding</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" style="color:var(--accent2)">3</div>
+      <div class="stat-l"><span data-lang="am" class="active">ቋንቋዎች</span><span data-lang="en">Languages</span><span data-lang="it">Lingue</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" style="color:var(--accent3)">∞</div>
+      <div class="stat-l"><span data-lang="am" class="active">ልምምዶች</span><span data-lang="en">Practice Problems</span><span data-lang="it">Esercizi</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- LESSON DEMO -->
+<section class="section" id="lesson">
+  <p class="section-label">// sample lesson</p>
+  <h2 class="section-title">
+    <span data-lang="am" class="active">ትምህርት ምሳሌ</span>
+    <span data-lang="en">How lessons look</span>
+    <span data-lang="it">Come appaiono le lezioni</span>
+  </h2>
+
+  <div class="subject-tabs">
+    <button class="subject-tab math active" onclick="setLesson('math',this)">➕ Math</button>
+    <button class="subject-tab prog" onclick="setLesson('prog',this)">💻 Python</button>
+  </div>
+
+  <!-- MATH LESSON -->
+  <div class="lesson-box" id="lesson-math">
+    <div class="lesson-topbar">
+      <div class="tb-dot" style="background:#ff6b6b"></div>
+      <div class="tb-dot" style="background:#f7b731"></div>
+      <div class="tb-dot" style="background:#00f5c4"></div>
+      <span class="tb-title">geometry_01.math — Pythagorean Theorem</span>
+    </div>
+    <div class="lesson-content">
+      <div class="lesson-left">
+        <h3>
+          <span data-lang="am" class="active">የፓይታጎረስ ቲዎሬም</span>
+          <span data-lang="en">The Pythagorean Theorem</span>
+          <span data-lang="it">Il Teorema di Pitagora</span>
+        </h3>
+        <p>
+          <span data-lang="am" class="active">በቀኝ ማዕዘን ሶስት ማዕዘን ውስጥ፣ ሀይፖቴኑዝ ካሬ ሌሎቹ ሁለት ጎኖች ካሬ ድምር ጋር እኩል ነው።</span>
+          <span data-lang="en">In any right-angled triangle, the square of the hypotenuse equals the sum of the squares of the other two sides.</span>
+          <span data-lang="it">In qualsiasi triangolo rettangolo, il quadrato dell'ipotenusa è uguale alla somma dei quadrati degli altri due lati.</span>
+        </p>
+        <p class="highlight">
+          <span data-lang="am" class="active">c = ሀይፖቴኑዝ (ረጅሙ ጎን)፣ a እና b ሌሎቹ ጎኖች ናቸው።</span>
+          <span data-lang="en">Where c is the hypotenuse (longest side), and a, b are the other sides.</span>
+          <span data-lang="it">Dove c è l'ipotenusa (lato più lungo), a e b gli altri lati.</span>
+        </p>
+      </div>
+      <div class="lesson-right">
+        <div class="formula-display">
+          <div class="formula-big">a² + b² = c²</div>
+          <div class="formula-note">Pythagorean Theorem</div>
+          <div style="margin-top:16px;font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted)">
+            <span style="color:var(--accent2)">3² + 4² = 5²</span><br>9 + 16 = 25 ✓
+          </div>
+        </div>
+        <div class="formula-display">
+          <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted)">
+            <span data-lang="am" class="active">ምሳሌ፦ a=6, b=8 ከሆነ c=?</span>
+            <span data-lang="en">Example: if a=6, b=8, find c</span>
+            <span data-lang="it">Esempio: se a=6, b=8, trova c</span>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:1rem;color:var(--accent);margin-top:10px">
+            6² + 8² = c²<br>36 + 64 = 100<br><span style="color:var(--accent2)">c = 10 ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PYTHON LESSON -->
+  <div class="lesson-box" id="lesson-prog" style="display:none">
+    <div class="lesson-topbar">
+      <div class="tb-dot" style="background:#ff6b6b"></div>
+      <div class="tb-dot" style="background:#f7b731"></div>
+      <div class="tb-dot" style="background:#00f5c4"></div>
+      <span class="tb-title">python_01.py — Variables &amp; Loops</span>
+    </div>
+    <div class="lesson-content">
+      <div class="lesson-left">
+        <h3>
+          <span data-lang="am" class="active">Python: ተለዋዋጮች እና ሎፕ</span>
+          <span data-lang="en">Python: Variables &amp; Loops</span>
+          <span data-lang="it">Python: Variabili e Cicli</span>
+        </h3>
+        <p>
+          <span data-lang="am" class="active">ተለዋዋጭ (variable) ዳታን ለማስቀመጥ ያገለግላል። ሎፕ (loop) ኮዱን ደጋግሞ ያሄዳል።</span>
+          <span data-lang="en">A variable stores data. A loop repeats code multiple times automatically.</span>
+          <span data-lang="it">Una variabile memorizza dati. Un ciclo ripete il codice automaticamente.</span>
+        </p>
+        <p class="highlight">
+          <span data-lang="am" class="active">Python ለጀማሪዎች በጣም ቀላል ቋንቋ ነው!</span>
+          <span data-lang="en">Python is the #1 beginner-friendly language!</span>
+          <span data-lang="it">Python è il linguaggio più adatto ai principianti!</span>
+        </p>
+      </div>
+      <div class="lesson-right">
+        <div class="code-block">
+<span class="cmt"># Variables in Python</span>
+<span class="kw">name</span> = <span class="str">"Mathser"</span>
+<span class="kw">score</span> = <span class="num">100</span>
+<span class="fn">print</span>(<span class="str">f"Hello, {name}!"</span>)
+
+<span class="cmt"># For loop example</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>):
+    <span class="fn">print</span>(<span class="str">f"Number: {i}"</span>)
+
+<span class="cmt"># Output:</span>
+<span class="cmt"># Hello, Mathser!</span>
+<span class="cmt"># Number: 1, 2, 3, 4, 5</span>
+        </div>
+        <div class="formula-display">
+          <div style="font-family:'Space Mono',monospace;font-size:0.78rem;color:var(--muted)">
+            <span data-lang="am" class="active">ሎፕ ስራ፦</span>
+            <span data-lang="en">Loop does:</span>
+            <span data-lang="it">Il ciclo fa:</span>
+          </div>
+          <div style="font-family:'Space Mono',monospace;font-size:0.85rem;color:var(--prog);margin-top:10px;line-height:1.8">
+            i=1 → <span style="color:var(--accent2)">print(1)</span><br>
+            i=2 → <span style="color:var(--accent2)">print(2)</span><br>
+            i=3 → <span style="color:var(--accent2)">print(3) ...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="section" id="quiz">
+  <p class="section-label">// practice</p>
+  <h2 class="section-title" style="text-align:center">
+    <span data-lang="am" class="active">ፈተና</span>
+    <span data-lang="en">Quick Quiz</span>
+    <span data-lang="it">Quiz Rapido</span>
+  </h2>
+
+  <div class="quiz-wrap">
+    <div class="quiz-tabs">
+      <button class="qtab math active" onclick="setQuizType('math',this)">➕ Math</button>
+      <button class="qtab prog" onclick="setQuizType('prog',this)">💻 Coding</button>
+    </div>
+    <div class="quiz-category" id="q-cat" style="color:var(--accent)">MATH</div>
+    <p class="quiz-q" id="q-text"></p>
+    <div class="quiz-eq" id="q-eq"></div>
+    <div class="quiz-opts" id="q-opts"></div>
+    <div class="quiz-fb" id="q-fb"></div>
+    <button class="btn-ghost" style="width:100%;margin-top:18px" onclick="nextQ()">
+      <span data-lang="am" class="active">ቀጣይ ጥያቄ →</span>
+      <span data-lang="en">Next Question →</span>
+      <span data-lang="it">Prossima Domanda →</span>
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Math<span>ser</span></div>
+  <span data-lang="am" class="active">ሂሳብ እና ፕሮግራሚንግ — ለሁሉም ሰው ቀላል</span>
+  <span data-lang="en">Mathematics &amp; Programming — Made Simple for Everyone</span>
+  <span data-lang="it">Matematica &amp; Programmazione — Semplici per Tutti</span>
+  <div style="margin-top:10px;opacity:0.35">© 2025 Mathser</div>
+</footer>
+
+<script>
+/* ── FLOATERS ── */
+const syms = ['+','−','×','÷','=','π','∑','√','∫','∞','<>','{}','//','def','for','if','Δ','θ'];
+const fc = document.getElementById('floaters');
+for(let i=0;i<22;i++){
+  const el=document.createElement('div');
+  el.className='floater';
+  el.textContent=syms[Math.floor(Math.random()*syms.length)];
+  el.style.left=Math.random()*100+'%';
+  el.style.animationDuration=(14+Math.random()*22)+'s';
+  el.style.animationDelay=(Math.random()*25)+'s';
+  el.style.fontSize=(0.8+Math.random()*1.8)+'rem';
+  fc.appendChild(el);
+}
+
+/* ── LANGUAGE ── */
+let currentLang='am';
+function setLang(lang){
+  currentLang=lang;
+  document.querySelectorAll('[data-lang]').forEach(el=>{
+    el.classList.toggle('active', el.dataset.lang===lang);
+  });
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.classList.toggle('active', btn.textContent.toLowerCase().includes(lang) || (lang==='am'&&btn.textContent==='አማ'));
+  });
+  loadQuestion();
+}
+
+/* ── SUBJECT TABS ── */
+function setSubject(type,btn){
+  document.querySelectorAll('.subject-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-math').classList.toggle('active',type==='math');
+  document.getElementById('panel-prog').classList.toggle('active',type==='prog');
+}
+
+/* ── LESSON TABS ── */
+function setLesson(type,btn){
+  document.querySelectorAll('#lesson .subject-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('lesson-math').style.display=type==='math'?'block':'none';
+  document.getElementById('lesson-prog').style.display=type==='prog'?'block':'none';
+}
+
+/* ── QUIZ ── */
+const quizData = {
+  math: [
+    {
+      am:{q:"ፍታ:", eq:"2x + 6 = 14"},
+      en:{q:"Solve for x:", eq:"2x + 6 = 14"},
+      it:{q:"Risolvi per x:", eq:"2x + 6 = 14"},
+      opts:["x = 4","x = 3","x = 5","x = 7"], ans:0
+    },
+    {
+      am:{q:"ይሰላ:", eq:"√225"},
+      en:{q:"Calculate:", eq:"√225"},
+      it:{q:"Calcola:", eq:"√225"},
+      opts:["13","14","15","16"], ans:2
+    },
+    {
+      am:{q:"ስፋቱ ምን ያህል ነው? r=7:", eq:"A = πr²"},
+      en:{q:"Find area, r=7:", eq:"A = πr²"},
+      it:{q:"Trova l'area, r=7:", eq:"A = πr²"},
+      opts:["49π","14π","7π","21π"], ans:0
+    },
+  ],
+  prog: [
+    {
+      am:{q:"Python: የዚህ ውፅዓት ምንድን ነው?", eq:'print(2 ** 8)'},
+      en:{q:"Python: What is the output?", eq:'print(2 ** 8)'},
+      it:{q:"Python: Qual è l'output?", eq:'print(2 ** 8)'},
+      opts:["16","64","128","256"], ans:3
+    },
+    {
+      am:{q:"HTML: ርዕስ ለመስራት ምን tag ይጠቀሙ?", eq:"<_?_> Title </_?_>"},
+      en:{q:"HTML: Which tag creates a heading?", eq:"<_?_> Title </_?_>"},
+      it:{q:"HTML: Quale tag crea un titolo?", eq:"<_?_> Title </_?_>"},
+      opts:["<p>","<h1>","<div>","<span>"], ans:1
+    },
+    {
+      am:{q:"Python: for loop ስንት ጊዜ ይሄዳል?", eq:"for i in range(3, 9):"},
+      en:{q:"Python: How many times does this loop run?", eq:"for i in range(3, 9):"},
+      it:{q:"Python: Quante volte viene eseguito?", eq:"for i in range(3, 9):"},
+      opts:["3","6","9","12"], ans:1
+    },
+  ]
+};
+
+let qType='math', qIdx=0, answered=false;
+
+function setQuizType(type,btn){
+  qType=type;
+  qIdx=0;
+  document.querySelectorAll('.qtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('q-cat').style.color=type==='math'?'var(--accent)':'var(--prog)';
+  document.getElementById('q-cat').textContent=type==='math'?'MATH':'CODING';
+  loadQuestion();
+}
+
+function loadQuestion(){
+  answered=false;
+  const pool=quizData[qType];
+  const q=pool[qIdx%pool.length];
+  const lang=currentLang==='am'?'am':currentLang==='it'?'it':'en';
+  document.getElementById('q-text').textContent=q[lang].q;
+  document.getElementById('q-eq').textContent=q[lang].eq;
+  document.getElementById('q-fb').textContent='';
+  document.getElementById('q-fb').style.color='var(--muted)';
+  const opts=document.getElementById('q-opts');
+  opts.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='qopt'; b.textContent=o;
+    b.onclick=()=>{
+      if(answered)return; answered=true;
+      if(i===q.ans){
+        b.classList.add('correct');
+        document.getElementById('q-fb').textContent=
+          currentLang==='am'?'✓ ትክክል! እናንተ ጎበዝ ናችሁ።':
+          currentLang==='it'?'✓ Corretto! Ottimo lavoro.':'✓ Correct! Well done.';
+        document.getElementById('q-fb').style.color='var(--accent2)';
+      } else {
+        b.classList.add('wrong');
+        opts.children[q.ans].classList.add('correct');
+        document.getElementById('q-fb').textContent=
+          currentLang==='am'?'✗ ትክክል አይደለም። ትክክለኛው ምልክት ተደርጎለታል።':
+          currentLang==='it'?'✗ Non corretto. La risposta è evidenziata.':'✗ Not quite. Correct answer is highlighted.';
+        document.getElementById('q-fb').style.color='var(--accent3)';
+      }
+    };
+    opts.appendChild(b);
+  });
+}
+
+function nextQ(){ qIdx++; loadQuestion(); }
+
+loadQuestion();
+</script>
+</body>
+</html>
